@@ -1,0 +1,10 @@
+user->browser: Types "Hello world" to input type=text
+user->browser: Clicks on Submit button
+note over browser:
+spa.js intercepts submit button click event,
+clears input field, redraws notes list
+with a new note and generates POST request
+to the server with the note provided by the user
+end note
+browser->server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa\n{"content": "Another note",  "date": "2022-08-28T10:33:54.597Z"}
+server-->browser: HTTP 201\n{"message":"note created"}

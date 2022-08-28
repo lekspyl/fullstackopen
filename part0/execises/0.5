@@ -1,0 +1,19 @@
+browser->server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/spa
+server-->browser: HTML-code
+browser->server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.css
+server-->browser: main.css
+browser->server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/spa.js
+server-->browser: spa.js
+
+note over browser:
+browser starts executing spa.js code that:
+1. Adds event listener on submit button
+2. Makes GET request for data.json
+end note
+
+browser->server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/data.json
+server-->browser: [{content: "Test123", date: "2022-08-27T21:28:52.572Z"},…]
+
+note over browser:
+spa.js code renders notes from data.json
+end note
