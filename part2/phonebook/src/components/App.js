@@ -3,6 +3,7 @@ import axios from 'axios'
 import Entries from './Entries'
 import Filter from './Filter'
 import NewEntry from './NewEntry'
+import phonebookService from '../services/phonebook'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -12,7 +13,7 @@ const App = () => {
 
   const hook = () => {
     axios
-    .get('http://localhost:3001/persons')
+    .get('http://localhost:3001/phonebook')
     .then(response => {
       setPersons(response.data)
     })
@@ -22,17 +23,46 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault()
-    const newPerson = { name: newName, phoneNumber: newNumber }
+    const newPerson = {
+      name: newName,
+      phoneNumber: newNumber
+    }
     if (!(newPerson.name && newPerson.phoneNumber)) {
       alert('Please fill in both fields')
     } else {
       if (persons.some(person => person.name === newPerson.name)) {
-        alert(`${newName} already exists in the phonebook`)
+        if (window.confirm(`${newName} already exists in the phonebook, overwrite the phone number?`)) {
+          const person = persons.find(person => person.name === newPerson.name)
+          phonebookService
+          .updateEntry(person.id, newPerson)
+          .then(returnedEntry => {
+            console.log(returnedEntry)
+            phonebookService.getAllEntries()
+              .then(response => setPersons(response))
+            setNewName('')
+            setNewNumber('')
+          })
+        }
       } else {
-        setPersons(persons.concat(newPerson))
-        setNewName('')
-        setNewNumber('')
+        // setPersons(persons.concat(newPerson))
+        phonebookService
+          .createEntry(newPerson)
+          .then(returnedEntry => {
+            setPersons(persons.concat(returnedEntry))
+            setNewName('')
+            setNewNumber('')
+          })
       }
+    }
+  }
+
+  const deleteEntry = (entry) => {
+    if (window.confirm(`You really want to delete ${entry.name}?`)) {
+      phonebookService.deleteEntry(entry.id)
+        .then(() => {
+          phonebookService.getAllEntries()
+              .then(response => setPersons(response))
+        })
     }
   }
 
@@ -63,7 +93,7 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <Filter filter={filter} onChange={handleFilterChange} />
-      <Entries entries={personsFiltered} />
+      <Entries entries={personsFiltered} handleDeleteAction={deleteEntry} />
     </div>
   )
 }

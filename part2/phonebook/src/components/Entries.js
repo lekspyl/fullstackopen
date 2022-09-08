@@ -1,11 +1,21 @@
-const Entry = ({ person }) => <li>{person.name} {person.phoneNumber}</li>
+const Entry = ({ person, handleDeleteAction }) => {
+  return (
+    <div>
+      <li>{person.name} {person.phoneNumber} <button onClick={() => handleDeleteAction(person)}>delete</button></li>
+    </div>
+  )
+}
 
-const Entries = ({ entries }) => {
+const Entries = ({ entries, handleDeleteAction }) => {
   return (
     <div>
       <h2>Entries</h2>
       <ul>
-        {entries.map(person => <Entry key={person.name} person={person} />)}
+        {entries.map(person => {
+          return (
+            <Entry key={person.name} person={person} handleDeleteAction={handleDeleteAction} />
+          )
+        })}
       </ul>
     </div>
   )
