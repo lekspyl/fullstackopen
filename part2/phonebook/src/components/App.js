@@ -3,6 +3,7 @@ import axios from 'axios'
 import Entries from './Entries'
 import Filter from './Filter'
 import NewEntry from './NewEntry'
+import Notification from './Notification'
 import phonebookService from '../services/phonebook'
 
 const App = () => {
@@ -10,6 +11,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setNewFilter] = useState('')
+  const [notification, setNotification] = useState(null)
 
   const hook = () => {
     axios
@@ -35,20 +37,41 @@ const App = () => {
           const person = persons.find(person => person.name === newPerson.name)
           phonebookService
           .updateEntry(person.id, newPerson)
-          .then(returnedEntry => {
-            console.log(returnedEntry)
+          .then(() => {
             phonebookService.getAllEntries()
               .then(response => setPersons(response))
+            setNotification({
+              type: 'success',
+              message: `${person.name}'s phone number is updated`
+            })
+            setTimeout(() => {
+              setNotification(null)
+            }, 2000)
             setNewName('')
             setNewNumber('')
           })
+          .catch(() => {
+            setNotification({
+              type: 'error',
+              message: `${person.name}'s has already been removed from the phonebook`
+            })
+            setTimeout(() => {
+              setNotification(null)
+            }, 2000)
+          })
         }
       } else {
-        // setPersons(persons.concat(newPerson))
         phonebookService
           .createEntry(newPerson)
           .then(returnedEntry => {
             setPersons(persons.concat(returnedEntry))
+            setNotification({
+              type: 'success',
+              message: `${newPerson.name} is added to the phonebook`
+            })
+            setTimeout(() => {
+              setNotification(null)
+            }, 2000)
             setNewName('')
             setNewNumber('')
           })
@@ -85,6 +108,7 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
+      <Notification message={notification} />
       <NewEntry
         addPerson={addPerson}
         newName={newName}
