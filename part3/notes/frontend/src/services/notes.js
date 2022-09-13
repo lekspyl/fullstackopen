@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseUrl = 'https://lekspyl-part3-notes-backend.fly.dev/api/notes'
+const baseUrl = '/api/notes'
 
 const getAll = async () => {
   return (await axios.get(baseUrl)).data
@@ -12,7 +12,7 @@ const create = async newObject => {
 }
 
 const update = async (id, newObject) => {
-  return (await axios.patch(`${baseUrl}/${id}`, newObject)).data
+  return (await axios.put(`${baseUrl}/${id}`, newObject)).data
 }
 
 const noteService = {  getAll, create, update }

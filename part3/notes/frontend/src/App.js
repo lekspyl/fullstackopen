@@ -43,12 +43,12 @@ const App = (props) => {
       .catch(error => {
         console.log(changedNote)
         setErrorMessage(
-          `Note '${note.content}' was already removed from server`
+          `An error occurred while updating '${note.content}'`
         )
         setTimeout(() => {
           setErrorMessage(null)
         }, 5000)
-        setNotes(notes.filter(n => n.id !== id))
+        // setNotes(notes.filter(n => n.id !== id))
       })
   }
 
