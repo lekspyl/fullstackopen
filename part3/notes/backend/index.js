@@ -37,7 +37,7 @@ app.delete('/api/notes/:id', (request, response) => {
     .catch(error => next(error))
 })
 
-app.post('/api/notes', (request, response) => {
+app.post('/api/notes', (request, response, next) => {
   const body = request.body
 
   if (body.content === undefined) {
@@ -53,46 +53,21 @@ app.post('/api/notes', (request, response) => {
   note.save().then(savedNote => {
     response.json(savedNote)
   })
+  .catch(error => next(error))
 })
 
 app.put('/api/notes/:id', (request, response, next) => {
-  const body = request.body
+  const { content, important } = request.body
 
-  const note = {
-    content: body.content,
-    important: body.important,
-  }
-
-  Note.findByIdAndUpdate(request.params.id, note, { new: true })
+  Note.findByIdAndUpdate(
+    request.params.id,
+    { content, important },
+    { new: true, runValidators: true, context: 'query' }
+  )
     .then(updatedNote => {
       response.json(updatedNote)
     })
     .catch(error => next(error))
-})
-
-// DEPRECATED: Use PUT method instead
-app.patch('/api/notes/:id', (request, response) => {
-  const body = request.body
-  const noteIndex = notes.findIndex(x => +x.id === +request.params.id);
-
-
-  if (!body.content) {
-    return response.status(400).json({
-      error: 'content missing'
-    })
-  }
-
-  const patchedNote = {
-    content: body.content,
-    important: body.important,
-    date: new Date(),
-    id: request.params.id
-  }
-
-  notes[noteIndex] = patchedNote
-
-  console.log(notes)
-  response.json(patchedNote)
 })
 
 const unknownEndpoint = (request, response) => {
@@ -105,6 +80,8 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
   }
 
   next(error)
